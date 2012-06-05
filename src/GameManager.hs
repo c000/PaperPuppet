@@ -1,25 +1,37 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
 module GameManager
-  where
+  ( Object (..)
+  , runGame
+  , module GlobalValue
+  ) where
 
+import qualified Data.Set as S
 import Graphics.UI.SDL (glSwapBuffers)
 
 import KeyBind
+import GlobalValue
 import Class.GameScene
 
 data Object = forall a. GameScene a => Object a
 
 type SceneStack = [Object]
 
-runGame :: Keyset -> SceneStack -> IO ()
+runGame :: GlobalValue -> SceneStack -> IO ()
 runGame _ [] = return ()
-runGame k ((Object x):xs) = do
-  render x
+runGame gv@(GV {keyset = k}) stack@((Object x):xs) = do
+  renderGame stack
   glSwapBuffers
   k <- updateKeyset k
   newScene <- update k x
   case newScene of
-    Replace g -> runGame k ((Object g):xs)
-    AddScene g -> runGame k ((Object g):(Object x):xs)
-    EndScene -> runGame k xs
+    Replace g -> runGame (gv {keyset = k}) ((Object g):xs)
+    AddScene g -> runGame (gv {keyset = S.empty}) ((Object g):(Object x):xs)
+    EndScene -> runGame (gv {keyset = S.empty}) xs
+
+renderGame :: SceneStack -> IO ()
+renderGame [] = return ()
+renderGame ((Object x):xs) = do
+  if transparent x then renderGame xs
+                   else return ()
+  render x

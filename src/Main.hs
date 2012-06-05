@@ -1,12 +1,14 @@
-import qualified Data.Set as S
+import Graphics.UI.SDL (Surface)
 
 import Initialize
 import TitleScene
 import GameManager
 
+main :: IO ()
 main = do
-  withGameInit mainLoop
+  withGameInit main'
 
-mainLoop window = do
+main' :: Surface -> IO ()
+main' w = do
   putStrLn "GameInitialized"
-  runGame S.empty [Object titleScene]
+  runGame (defaultGV w) [Object titleScene]
