@@ -8,6 +8,7 @@ module GameManager
 
 import qualified Data.Set as S
 import Graphics.UI.SDL (glSwapBuffers)
+import Graphics.Rendering.OpenGL hiding (Replace)
 
 import KeyBind
 import GlobalValue
@@ -20,6 +21,7 @@ type SceneStack = [Object]
 runGame :: GlobalValue -> SceneStack -> IO ()
 runGame _ [] = return ()
 runGame gv@(GV {keyset = k}) stack@((Object x):xs) = do
+  clear [ColorBuffer]
   renderGame stack
   glSwapBuffers
   k <- updateKeyset k
