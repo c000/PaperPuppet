@@ -5,7 +5,9 @@ import Graphics.Rendering.OpenGL
 
 import Class.GameScene as GS
 import KeyBind
+import GlobalValue
 
+titleScene :: TitleScene
 titleScene = TitleScene 0
 
 data TitleScene = TitleScene
@@ -13,7 +15,7 @@ data TitleScene = TitleScene
   } deriving Eq
 
 instance GameScene TitleScene where
-  update key (TitleScene frame) = do
+  update (GV {keyset = key}) (TitleScene frame) = do
     if member QUIT key
       then return EndScene
       else return $ GS.Replace (TitleScene $ frame+1)

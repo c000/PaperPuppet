@@ -23,9 +23,10 @@ runGame gv@(GV {keyset = k}) stack@((Object x):xs) = do
   renderGame stack
   glSwapBuffers
   k <- updateKeyset k
-  newScene <- update k x
+  let newGV = gv {keyset = k}
+  newScene <- update newGV x
   case newScene of
-    Replace g -> runGame (gv {keyset = k}) ((Object g):xs)
+    Replace g -> runGame newGV ((Object g):xs)
     AddScene g -> runGame (gv {keyset = S.empty}) ((Object g):(Object x):xs)
     EndScene -> runGame (gv {keyset = S.empty}) xs
 
