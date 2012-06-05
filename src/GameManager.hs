@@ -29,6 +29,7 @@ runGame gv@(GV {keyset = k}) stack@((Object x):xs) = do
     Replace g -> runGame newGV ((Object g):xs)
     AddScene g -> runGame (gv {keyset = S.empty}) ((Object g):(Object x):xs)
     EndScene -> runGame (gv {keyset = S.empty}) xs
+    RemoveScenes i -> runGame (gv {keyset = S.empty}) (drop i xs)
 
 renderGame :: SceneStack -> IO ()
 renderGame [] = return ()
