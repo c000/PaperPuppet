@@ -29,6 +29,7 @@ normalKey f (Keysym {symKey = k})
   | k == SDLK_LEFT  = f LB
   | k == SDLK_UP    = f UB
   | k == SDLK_DOWN  = f DB
+  | k == SDLK_ESCAPE= f QUIT
   | otherwise       = id
 
 updateKeyset :: Keyset -> IO Keyset

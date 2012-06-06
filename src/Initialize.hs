@@ -16,6 +16,9 @@ withGameInit f = do
 
 initOpenGL :: IO ()
 initOpenGL = do
+  mapM_ ($= Enabled) [ texture Texture2D
+                     , blend
+                     ]
   matrixMode $= Projection
   ortho 0 w 0 h (-1) 1
   matrixMode $= Modelview 0

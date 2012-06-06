@@ -53,7 +53,7 @@ Executable paper_puppet
   Ghc-options:         -Wall -O
   
   -- Packages needed in order to build this package.
-  Build-depends:       base, containers, SDL, OpenGL
+  Build-depends:       base, containers, SDL, OpenGL, SDL-image
   
   -- Modules not exported by this package.
   -- Other-modules:       
