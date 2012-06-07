@@ -5,6 +5,7 @@ module FPSManager
 import Data.IORef
 import Data.Word
 import System.IO.Unsafe
+import System.Mem
 
 import Graphics.UI.SDL.Time
 
@@ -21,8 +22,9 @@ targetFPS = 60
 
 waitGame :: IO ()
 waitGame = do
-  c <- getTicks
+  performGC
   fs@(FS l w) <- readIORef state
+  c <- getTicks
   let timeDiff = fromIntegral $ c - l
       timeDiff :: Int
   case w - timeDiff of
