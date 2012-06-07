@@ -6,9 +6,9 @@ import Graphics.UI.SDL.Image
 import Graphics.Rendering.OpenGL
 import System.IO.Unsafe
 
-lena :: TextureObject
-lena = unsafePerformIO $ do
-  surface <- load "res/lena_std.tif"
+loadTexturePow2 :: FilePath -> TextureObject
+loadTexturePow2 fileName = unsafePerformIO $ do
+  surface <- load fileName
   let w = fromIntegral $ surfaceGetWidth surface
       h = fromIntegral $ surfaceGetHeight surface
   pixels <- surfaceGetPixels surface
