@@ -10,6 +10,7 @@ import qualified Data.Set as S
 import Graphics.UI.SDL (glSwapBuffers)
 import Graphics.Rendering.OpenGL hiding (Replace)
 
+import FPSManager
 import KeyBind
 import GlobalValue
 import Class.GameScene
@@ -24,6 +25,7 @@ runGame gv@(GV {keyset = k}) stack@((Object x):xs) = do
   clear [ColorBuffer]
   renderGame stack
   glSwapBuffers
+  waitGame
   k <- updateKeyset k
   let newGV = gv {keyset = k}
   newScene <- update newGV x
