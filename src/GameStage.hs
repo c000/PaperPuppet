@@ -12,21 +12,21 @@ import KeyBind
 import GlobalValue
 
 import GameStage.GameObject
-import GameStage.Player
+import qualified GameStage.Player as P
 
 data GameStage = GameStage
-  { player :: Player
+  { player :: P.Player
   } deriving Eq
 
 instance GS.GameScene GameStage where
   update (GV {keyset = key}) scene@(GameStage {player = player}) = do
     case member QUIT key of
       True  -> return GS.EndScene
-      False -> return $ GS.Replace $ scene {player = update key player}
+      False -> return $ GS.Replace $ scene {player = P.update key player}
 
   render (GameStage obj) = do
     render obj
     return ()
 
 gameStage :: IO GameStage
-gameStage = return $ GameStage (GameObject (400:+400) 0 (16:+16))
+gameStage = return $ GameStage P.player
