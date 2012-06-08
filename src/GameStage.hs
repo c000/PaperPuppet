@@ -4,25 +4,29 @@ module GameStage
   ) where
 
 import Data.Set
-import Graphics.Rendering.OpenGL
+import Data.Complex
 
-import Class.GameScene as GS
-import Internal.Texture
+import qualified Class.GameScene as GS
+import Class.Sprite
 import KeyBind
 import GlobalValue
 
+import GameStage.GameObject
+import GameStage.Player
+
 data GameStage = GameStage
-  {
+  { player :: Player
   } deriving Eq
 
-instance GameScene GameStage where
-  update (GV {keyset = key}) scene = do
+instance GS.GameScene GameStage where
+  update (GV {keyset = key}) scene@(GameStage {player = player}) = do
     case member QUIT key of
-      True  -> return EndScene
-      False -> return $ GS.Replace scene
+      True  -> return GS.EndScene
+      False -> return $ GS.Replace $ scene {player = update key player}
 
-  render scene = do
+  render (GameStage obj) = do
+    render obj
     return ()
 
-gameStage :: GameStage
-gameStage = GameStage
+gameStage :: IO GameStage
+gameStage = return $ GameStage (GameObject (400:+400) 0 (16:+16))

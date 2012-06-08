@@ -5,6 +5,7 @@ module KeyBind
   , keysetToXY
   ) where
 
+import Data.Complex
 import Data.Set
 import Graphics.UI.SDL
 import Graphics.UI.SDL.Keysym
@@ -39,8 +40,8 @@ updateKeyset k = do
     NoEvent -> return k
     some    -> updateKeyset (eventToKey some k)
 
-keysetToXY :: Keyset -> (Int, Int)
-keysetToXY k = (right - left, up - down)
+keysetToXY :: Num a => Keyset -> Complex a
+keysetToXY k = (right - left) :+ (up - down)
   where
     right = b2i $ member RB k
     left  = b2i $ member LB k

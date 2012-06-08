@@ -1,4 +1,4 @@
-module Sprite
+module Class.Sprite
   where
 
 import Graphics.Rendering.OpenGL

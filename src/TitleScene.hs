@@ -3,11 +3,13 @@ module TitleScene
   , titleScene
   ) where
 
+import Control.Applicative
 import Data.Set
 import Graphics.Rendering.OpenGL
 
 import Class.GameScene as GS
 import Internal.Texture
+import Internal.OpenGL
 import KeyBind
 import GlobalValue
 import GameStage
@@ -34,7 +36,7 @@ instance GameScene TitleScene where
   update (GV {keyset = key}) title@(TitleScene st movable) = do
     case member QUIT key of
       True  -> return EndScene
-      False -> return $ pressStart key $ moveCursor key title
+      False -> pressStart key $ moveCursor key title
 
   render (TitleScene st _) = do
     preservingMatrix $ do
@@ -75,18 +77,10 @@ moveCursor key title@(TitleScene st movable)
     nst = if movable then next st else st
     pst = if movable then prev st else st
 
-pressStart :: Keyset -> TitleScene -> Result
+pressStart :: Keyset -> TitleScene -> IO Result
 pressStart key title@(TitleScene st movable)
   | member A key = case st of
-      GameStart -> AddScene gameStage
-      GameEnd   -> EndScene
-  | otherwise = GS.Replace title
+      GameStart -> AddScene <$> gameStage
+      GameEnd   -> return EndScene
+  | otherwise = return $ GS.Replace title
 
-v2 :: GLfloat -> GLfloat -> IO ()
-v2 x y = vertex (Vertex2 x y)
-
-t2 :: GLfloat -> GLfloat -> IO ()
-t2 x y = texCoord (TexCoord2 x y)
-
-c3 :: GLfloat -> GLfloat -> GLfloat -> IO ()
-c3 r g b = color $ Color3 r g b

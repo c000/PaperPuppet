@@ -11,4 +11,4 @@ main = do
 main' :: Surface -> IO ()
 main' w = do
   putStrLn "GameInitialized"
-  runGame (defaultGV w) [Object titleScene]
+  runGame (defaultGV w) [SceneObject titleScene]

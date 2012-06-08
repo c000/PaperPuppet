@@ -1,7 +1,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
 module GameManager
-  ( Object (..)
+  ( SceneObject (..)
   , runGame
   , module GlobalValue
   ) where
@@ -15,13 +15,13 @@ import KeyBind
 import GlobalValue
 import Class.GameScene
 
-data Object = forall a. GameScene a => Object a
+data SceneObject = forall a. GameScene a => SceneObject a
 
-type SceneStack = [Object]
+type SceneStack = [SceneObject]
 
 runGame :: GlobalValue -> SceneStack -> IO ()
 runGame _ [] = return ()
-runGame gv@(GV {keyset = k}) stack@((Object x):xs) = do
+runGame gv@(GV {keyset = k}) stack@((SceneObject x):xs) = do
   clear [ColorBuffer]
   renderGame stack
   glSwapBuffers
@@ -30,14 +30,14 @@ runGame gv@(GV {keyset = k}) stack@((Object x):xs) = do
   let newGV = gv {keyset = k}
   newScene <- update newGV x
   case newScene of
-    Replace g -> runGame newGV ((Object g):xs)
-    AddScene g -> runGame (gv {keyset = S.empty}) ((Object g):(Object x):xs)
+    Replace g -> runGame newGV ((SceneObject g):xs)
+    AddScene g -> runGame (gv {keyset = S.empty}) ((SceneObject g):(SceneObject x):xs)
     EndScene -> runGame (gv {keyset = S.empty}) xs
     RemoveScenes i -> runGame (gv {keyset = S.empty}) (drop i xs)
 
 renderGame :: SceneStack -> IO ()
 renderGame [] = return ()
-renderGame ((Object x):xs) = do
+renderGame ((SceneObject x):xs) = do
   if transparent x then renderGame xs
                    else return ()
   render x
