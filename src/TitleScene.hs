@@ -40,14 +40,15 @@ instance GameScene TitleScene where
 
   render (TitleScene st _) = do
     preservingMatrix $ do
-      textureBinding Texture2D $=! (Just $ loadTexture "res/title.png")
+      let ImageTexture tex w h = loadTexture "res/title.png"
+      textureBinding Texture2D $=! (Just $ tex)
       renderPrimitive Quads $ do
         c3 1 1 1
-        t2 0 1
+        t2 0 h
         v2 0 0
-        t2 1 1
+        t2 w h
         v2 800 0
-        t2 1 0
+        t2 w 0
         v2 800 600
         t2 0 0
         v2 0 600

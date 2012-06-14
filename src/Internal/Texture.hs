@@ -1,5 +1,6 @@
 module Internal.Texture
-  ( loadTexture
+  ( ImageTexture (..)
+  , loadTexture
   ) where
 
 import Graphics.UI.SDL
@@ -7,7 +8,9 @@ import Graphics.UI.SDL.Image
 import Graphics.Rendering.OpenGL
 import System.IO.Unsafe
 
-loadTexture :: FilePath -> TextureObject
+data ImageTexture = ImageTexture !TextureObject !GLfloat !GLfloat
+
+loadTexture :: FilePath -> ImageTexture
 loadTexture fileName = unsafePerformIO $ do
   -- load to SDL Surface
   srcSurface <- load fileName
@@ -26,7 +29,9 @@ loadTexture fileName = unsafePerformIO $ do
   textureBinding Texture2D $= Just tex
   textureFilter Texture2D $=! ((Linear', Nothing), Linear')
   texImage2D Nothing NoProxy 0 RGBA' (TextureSize2D sizeGL sizeGL) 0 pixelData
-  return tex
+  return $ ImageTexture tex (w `fdiv` size) (h `fdiv` size)
+
+fdiv x y = (realToFrac x) / (realToFrac y)
 
 ceilingPow2 :: Integral a => a -> a
 ceilingPow2 x = head $ dropWhile (< x) [2^n | n <- [0..]]
