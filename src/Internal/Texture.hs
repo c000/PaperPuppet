@@ -1,5 +1,7 @@
 module Internal.Texture
   ( ImageTexture (..)
+  , TextureAnimation (..)
+  , noTexture
   , loadTexture
   ) where
 
@@ -9,6 +11,15 @@ import Graphics.Rendering.OpenGL
 import System.IO.Unsafe
 
 data ImageTexture = ImageTexture !TextureObject !GLfloat !GLfloat
+  deriving (Eq)
+
+data TextureAnimation = TA
+  { texture :: Maybe ImageTexture
+  , textureDivs :: (Int, Int)
+  , frames :: [(Int, Int)]
+  } deriving (Eq)
+
+noTexture = TA Nothing (0,0) []
 
 loadTexture :: FilePath -> ImageTexture
 loadTexture fileName = unsafePerformIO $ do

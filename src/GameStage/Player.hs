@@ -8,6 +8,7 @@ import Graphics.Rendering.OpenGL (GLfloat)
 import Data.Complex
 import GameStage.GameObject
 import KeyBind
+import Internal.Texture (noTexture)
 
 -- Player GameObject MoveSpeed
 data Player = Player
@@ -32,4 +33,4 @@ update key player@( Player obj@(GameObject { pos = pos })
            | y > 580   = 580
            | otherwise = y
 
-player = Player (GameObject (400:+400) 0 (16:+16)) 10
+player = Player (GameObject (400:+400) 0 (16:+16) noTexture 0) 10
