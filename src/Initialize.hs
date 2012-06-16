@@ -11,6 +11,7 @@ withGameInit :: (Surface -> IO ()) -> IO ()
 withGameInit f = do
   withInit [InitEverything] $ do
     window <- setVideoMode windowWidth windowHeight windowDepth [OpenGL]
+    showCursor False
     initOpenGL
     f window
 

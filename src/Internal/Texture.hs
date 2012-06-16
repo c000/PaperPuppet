@@ -12,6 +12,7 @@ data ImageTexture = ImageTexture !TextureObject !GLfloat !GLfloat
 
 loadTexture :: FilePath -> ImageTexture
 loadTexture fileName = unsafePerformIO $ do
+  putStrLn "WARNING: Unsafe texture loading."
   -- load to SDL Surface
   srcSurface <- load fileName
   let w = surfaceGetWidth srcSurface

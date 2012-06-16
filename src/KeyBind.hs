@@ -40,7 +40,7 @@ updateKeyset k = do
     NoEvent -> return k
     some    -> updateKeyset (eventToKey some k)
 
-keysetToXY :: Num a => Keyset -> Complex a
+keysetToXY :: (RealFloat a) => Keyset -> Complex a
 keysetToXY k = (right - left) :+ (up - down)
   where
     right = b2i $ member RB k
