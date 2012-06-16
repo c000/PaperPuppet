@@ -16,6 +16,9 @@ data GameObject = GameObject
   , size :: Complex GLfloat
   } deriving Eq
 
+class HaveGameObject a where
+  gameObject :: a -> GameObject
+
 instance S.Sprite GameObject where
   render (GameObject { pos = x :+ y
                      , size = sx :+ sy

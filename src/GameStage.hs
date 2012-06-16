@@ -24,8 +24,8 @@ instance GS.GameScene GameStage where
       True  -> return GS.EndScene
       False -> return $ GS.Replace $ scene {player = P.update key player}
 
-  render (GameStage obj) = do
-    render obj
+  render (GameStage {player = player}) = do
+    render $ gameObject player
     return ()
 
 gameStage :: IO GameStage

@@ -4,15 +4,24 @@ module GameStage.Player
   , update
   ) where
 
+import Graphics.Rendering.OpenGL (GLfloat)
 import Data.Complex
 import GameStage.GameObject
 import KeyBind
 
-type Player = GameObject
+-- Player GameObject MoveSpeed
+data Player = Player
+  { object :: GameObject
+  , moveSpeed :: Complex GLfloat
+  } deriving (Eq)
+
+instance HaveGameObject Player where
+  gameObject (Player {object = object}) = object
 
 update :: Keyset -> Player -> Player
-update key player@(GameObject { pos = pos }) =
-  player { pos = crop $ pos + dpos}
+update key player@( Player obj@(GameObject { pos = pos })
+                           moveSpeed ) =
+  player {object = obj {pos = crop $ pos + dpos}}
     where
       dpos = moveSpeed * keysetToXY key
       crop (x:+y) = (cx x :+ cy y)
@@ -23,6 +32,4 @@ update key player@(GameObject { pos = pos }) =
            | y > 580   = 580
            | otherwise = y
 
-moveSpeed = 10
-
-player = GameObject (400:+400) 0 (16:+16)
+player = Player (GameObject (400:+400) 0 (16:+16)) 10
