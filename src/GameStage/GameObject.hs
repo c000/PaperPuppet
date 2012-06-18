@@ -31,10 +31,11 @@ instance S.Sprite GameObject where
                      }) = do
     let hsx = sx / 2
         hsy = sy / 2
+    blendFunc $=! (One, Zero)
     preservingMatrix $ do
       translate $ Vector3 x y 0
       renderPrimitive Quads $ do
-        c3 1 1 1
+        c4 1 1 1 1
         v2 (hsx) (hsy)
         v2 (-hsx) (hsy)
         v2 (-hsx) (-hsy)
