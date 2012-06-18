@@ -18,7 +18,7 @@ data GameObject = GameObject
   , size :: Complex GLfloat
   , gameTexture :: TextureAnimation
   , frame :: Int
-  } deriving Eq
+  } deriving (Eq)
 
 class HaveGameObject a where
   gameObject :: a -> GameObject

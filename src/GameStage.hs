@@ -3,7 +3,12 @@ module GameStage
   , gameStage
   ) where
 
+import Control.Applicative
+import Control.Monad
 import Data.Set
+import qualified Data.Map as M
+import Data.Unique
+import System.IO.Unsafe (unsafeInterleaveIO)
 
 import qualified Class.GameScene as GS
 import Class.Sprite
@@ -13,40 +18,64 @@ import GlobalValue
 import GameStage.GameObject
 import qualified GameStage.Player as P
 import qualified GameStage.Bullet as B
+import qualified GameStage.Enemy as E
+import qualified GameStage.EnemyManager as EM
 
 data GameStage = GameStage
   { player :: P.Player
-  , playerBullets :: [B.Bullet]
+  , playerBullets :: M.Map Unique B.Bullet
+  , enemies :: M.Map Unique E.Enemy
+  , enemyList :: EM.EnemyList
+  , time :: Integer
   } deriving Eq
 
 instance GS.GameScene GameStage where
-  update (GV {keyset = key})
-         scene@(GameStage { player = player
-                          }) = do
+  update (GV {keyset = key}) scene = do
     case member QUIT key of
       True  -> return GS.EndScene
-      False -> return $ GS.Replace $ ( shoot
-                                     . update
-                                     ) scene
-        where
-          update :: GameStage -> GameStage
-          update (GameStage p pbs) = GameStage (P.update key p)
-                                               (Prelude.map B.update pbs)
-          shoot :: GameStage -> GameStage
-          shoot stage@(GameStage { player = p
-                                 , playerBullets = pbs
-                                 })
-            = let ppos = (pos.gameObject) p
-              in stage { playerBullets = if member A key
-                                           then B.playerBullet ppos : pbs
-                                           else pbs }
+      False -> GS.Replace <$> do
+        ( update >=> shoot >=> spawnEnemy ) scene
+    where
+      spawnEnemy stage@(GameStage { enemies = es
+                                  , enemyList = el
+                                  , time = t
+                                  })
+        = do let (newEs, newEl) = EM.spawnEnemy t el
+             nes <- mapM (\x -> (,) <$> newUnique <*> pure x) newEs
+             return $ stage { enemies = Prelude.foldl
+                                          ((flip . uncurry) M.insert)
+                                          es
+                                          nes
+                            , enemyList = newEl
+                            }
+      update :: GameStage -> IO GameStage
+      update (GameStage p pbs es el time)
+        = return $ GameStage (P.update key p)
+                             (M.map B.update pbs)
+                             (M.map E.update es)
+                             el
+                             (time + 1)
+      shoot :: GameStage -> IO GameStage
+      shoot stage@(GameStage { player = p
+                             , playerBullets = pbs
+                             })
+        = do let ppos = (pos.gameObject) p
+                 newB = B.playerBullet ppos
+             newPbs <- if member A key
+                         then M.insert <$> newUnique
+                                       <*> pure newB
+                                       <*> pure pbs
+                         else return pbs
+             return $ stage { playerBullets = newPbs }
 
-  render (GameStage { player = player
-                    , playerBullets = playerBullets
+  render (GameStage { player = p
+                    , playerBullets = pbs
+                    , enemies = es
                     }) = do
-    render $ gameObject player
-    mapM_ (render.gameObject) playerBullets
+    render $ gameObject p
+    mapM_ (render.gameObject) $ M.elems pbs
+    mapM_ (render.gameObject) $ M.elems es
     return ()
 
 gameStage :: IO GameStage
-gameStage = return $ GameStage P.player []
+gameStage = return $ GameStage P.player M.empty M.empty EM.constEnemy 0
