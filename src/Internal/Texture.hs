@@ -5,7 +5,7 @@ module Internal.Texture
   , loadTexture
   ) where
 
-import Graphics.UI.SDL
+import Graphics.UI.SDL as SDL
 import Graphics.UI.SDL.Image
 import Graphics.Rendering.OpenGL
 import System.IO.Unsafe
@@ -32,6 +32,7 @@ loadTexture fileName = unsafePerformIO $ do
   let size = ceilingPow2 $ max w h
       sizeGL = fromIntegral size
   newSurface <- createRGBSurfaceEndian [] size size 32
+  True <- setAlpha srcSurface [] 128
   True <- blitSurface srcSurface Nothing newSurface Nothing
   freeSurface srcSurface
   pixels <- surfaceGetPixels newSurface

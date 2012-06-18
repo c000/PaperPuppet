@@ -42,8 +42,9 @@ instance GameScene TitleScene where
     preservingMatrix $ do
       let ImageTexture tex w h = loadTexture "res/title.png"
       textureBinding Texture2D $=! (Just $ tex)
+      blendFunc $=! (One, Zero)
       renderPrimitive Quads $ do
-        c3 1 1 1
+        c4 0.5 0.5 0.5 1
         t2 0 h
         v2 0 0
         t2 w h
@@ -53,16 +54,21 @@ instance GameScene TitleScene where
         t2 0 0
         v2 0 600
     preservingMatrix $ do
-      textureBinding Texture2D $= Nothing
-      blendFunc $=! (OneMinusDstColor, One)
+      let ImageTexture tex w h = loadTexture "res/player.png"
+      textureBinding Texture2D $= (Just $ tex)
+      blendFunc $=! (SrcAlpha, OneMinusSrcAlpha)
       case st of
         GameStart -> translate (Vector3 10 110 0 :: Vector3 GLfloat)
         GameEnd   -> translate (Vector3 10 10 0 :: Vector3 GLfloat)
       renderPrimitive Quads $ do
-        c3 0.5 0.5 0.5
+        c4 1 1 1 1
+        t2 0 h
         v2 0 0
+        t2 w h
         v2 100 0
+        t2 w 0
         v2 100 100
+        t2 0 0
         v2 0 100
     return ()
 
