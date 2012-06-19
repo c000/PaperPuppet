@@ -24,7 +24,7 @@ update key player@( Player obj@(GameObject { pos = pos })
                            moveSpeed ) =
   player {object = obj {pos = crop $ pos + dpos}}
     where
-      dpos = moveSpeed * keysetToXY key
+      dpos = moveSpeed * (normalize . keysetToXY) key
       crop (x:+y) = (cx x :+ cy y)
       cx x | x < 20    = 20
            | x > 780   = 780
@@ -33,4 +33,8 @@ update key player@( Player obj@(GameObject { pos = pos })
            | y > 580   = 580
            | otherwise = y
 
-player = Player (GameObject (400:+400) 0 (16:+16) noTexture 0) 10
+normalize (x:+y) = case sqrt (x**2 + y**2) of
+                     0 -> 0
+                     n -> (x/n :+ y/n)
+
+player = Player (GameObject (400:+400) 0 (16:+16) noTexture 0) 4

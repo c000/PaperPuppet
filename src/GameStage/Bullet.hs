@@ -22,4 +22,4 @@ update bullet = bullet { object = newObject }
     objUpdate now@(GameObject { pos = p })
       = now {pos = p + dp}
 
-playerBullet pos = Bullet (GameObject pos 9 (8:+8) noTexture 0) (9:+0)
+playerBullet pos = Bullet (GameObject pos 5 (8:+8) noTexture 0) (9:+0)
