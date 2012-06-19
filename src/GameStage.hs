@@ -20,6 +20,7 @@ import qualified GameStage.Player as P
 import qualified GameStage.Bullet as B
 import qualified GameStage.Enemy as E
 import qualified GameStage.EnemyManager as EM
+import GameStage.Collider
 
 data GameStage = GameStage
   { player :: P.Player
@@ -34,8 +35,23 @@ instance GS.GameScene GameStage where
     case member QUIT key of
       True  -> return GS.EndScene
       False -> GS.Replace <$> do
-        ( update >=> shoot >=> spawnEnemy ) scene
+        ( update >=> shoot >=> spawnEnemy >=> hitEnemy ) scene
     where
+      hitEnemy stage@(GameStage { playerBullets = pbs
+                                , enemies = es
+                                })
+        = do let list = collide pbs es
+                 kpbs = Prelude.map fst list
+                 kes  = Prelude.map snd list
+             return stage { playerBullets = Prelude.foldl
+                                              (flip M.delete)
+                                              pbs
+                                              kpbs
+                          , enemies = Prelude.foldl
+                                        (flip M.delete)
+                                        es
+                                        kes
+                          }
       spawnEnemy stage@(GameStage { enemies = es
                                   , enemyList = el
                                   , time = t
