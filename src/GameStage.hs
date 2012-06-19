@@ -67,7 +67,7 @@ instance GS.GameScene GameStage where
       update :: GameStage -> IO GameStage
       update (GameStage p pbs es el time)
         = return $ GameStage (P.update key p)
-                             (M.map B.update pbs)
+                             (M.mapMaybe B.update pbs)
                              (M.mapMaybe E.update es)
                              el
                              (time + 1)

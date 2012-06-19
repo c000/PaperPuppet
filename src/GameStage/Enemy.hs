@@ -18,21 +18,19 @@ data Enemy = Enemy
 instance HaveGameObject Enemy where
   gameObject (Enemy {object = x}) = x
 
-scrollOutLength = 32
-
 update :: Enemy -> Maybe Enemy
 update enemy = case newEnemy of
                  Nothing -> Nothing
                  Just ne@(Enemy { object = GameObject { pos = p } } )
-                   | scrollOut p -> Nothing
+                   | scrollOut p 32 -> Nothing
                    | otherwise   -> Just ne
   where
     g@(GameObject {pos = p}) = gameObject enemy
-    scrollOut (x:+y) = or [ x < -scrollOutLength
-                          , x > realToFrac windowWidth + scrollOutLength
-                          , y < -scrollOutLength
-                          , y > realToFrac windowWidth + scrollOutLength
-                          ]
+    scrollOut (x:+y) l = or [ x < -l
+                            , x > realToFrac windowWidth + l
+                            , y < -l
+                            , y > realToFrac windowHeight + l
+                            ]
     newEnemy = case move enemy of
       []   -> Nothing
       m:ms -> Just enemy { object = g {pos = p + m}
