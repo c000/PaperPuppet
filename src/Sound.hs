@@ -41,10 +41,11 @@ getSoundThread = do
 soundThread :: SoundChan -> MusicData -> IO ()
 soundThread ch md = do
   command <- readChan ch
-  putStrLn "GET Command"
   case command of
     Quit -> return ()
-    StopMusic -> fadeOutMusic 1000
+    StopMusic -> do
+      p <- playingMusic
+      if p then fadeOutMusic 1000 else return ()
     Music musicName -> case musicName of
       Title -> playMusic (title md) (-1)
   if command /= Quit

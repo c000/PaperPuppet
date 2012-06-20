@@ -35,10 +35,10 @@ data TitleScene = TitleScene
   } deriving Eq
 
 instance GameScene TitleScene where
-  update (GV {keyset = key, sound = s}) title@TitleScene {time = t} = do
-    if t == 0
-      then SO.writeChan s (SO.Music SO.Title)
-      else return ()
+  start (GV {sound = s}) _ = do
+    SO.writeChan s (SO.Music SO.Title)
+
+  update (GV {keyset = key, sound = s}) title = do
     case member QUIT key of
       True  -> return EndScene
       False -> ( pressStart key s

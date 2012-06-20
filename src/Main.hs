@@ -3,6 +3,7 @@ import Graphics.UI.SDL (Surface)
 import Initialize
 import TitleScene
 import GameManager
+import Class.GameScene
 
 main :: IO ()
 main = do
@@ -12,4 +13,6 @@ main' :: Surface -> IO ()
 main' w = do
   putStrLn "GameInitialized"
   gv <- defaultGV w
-  runGame gv [SceneObject titleScene]
+  let title = titleScene
+  start gv title
+  runGame gv [SceneObject title]

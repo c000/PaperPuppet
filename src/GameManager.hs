@@ -31,9 +31,15 @@ runGame gv@(GV {keyset = k}) stack@((SceneObject x):xs) = do
   newScene <- update newGV x
   case newScene of
     Replace g -> runGame newGV ((SceneObject g):xs)
-    AddScene g -> runGame (gv {keyset = S.empty}) ((SceneObject g):(SceneObject x):xs)
-    EndScene -> runGame (gv {keyset = S.empty}) xs
-    RemoveScenes i -> runGame (gv {keyset = S.empty}) (drop i xs)
+    AddScene g -> runGameStart (gv {keyset = S.empty}) ((SceneObject g):(SceneObject x):xs)
+    EndScene -> runGameStart (gv {keyset = S.empty}) xs
+    RemoveScenes i -> runGameStart (gv {keyset = S.empty}) (drop i xs)
+
+runGameStart gv stack = do
+  case stack of
+    (SceneObject x):_ -> start gv x
+    otherwise         -> return ()
+  runGame gv stack
 
 renderGame :: SceneStack -> IO ()
 renderGame [] = return ()

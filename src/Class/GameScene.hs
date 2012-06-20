@@ -13,6 +13,9 @@ data Result = forall a. GameScene a => Replace a
 class GameScene a where
   update :: GlobalValue -> a -> IO Result
 
+  start :: GlobalValue -> a -> IO ()
+  start _ _ = return ()
+
   render :: a -> IO ()
   render _ = return ()
 
