@@ -3,6 +3,7 @@ module Initialize
   ) where
 
 import Graphics.UI.SDL as SDL
+import Graphics.UI.SDL.Mixer
 import Graphics.Rendering.OpenGL
 
 import GlobalSettings
@@ -12,8 +13,10 @@ withGameInit f = do
   withInit [InitEverything] $ do
     window <- setVideoMode windowWidth windowHeight windowDepth [OpenGL]
     showCursor False
+    openAudio 22050 AudioS16Sys 2 4096
     initOpenGL
     f window
+    closeAudio
 
 initOpenGL :: IO ()
 initOpenGL = do

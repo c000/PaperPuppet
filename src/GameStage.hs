@@ -8,7 +8,6 @@ import Control.Monad
 import Data.Set
 import qualified Data.Map as M
 import Data.Unique
-import System.IO.Unsafe (unsafeInterleaveIO)
 
 import qualified Class.GameScene as GS
 import Class.Sprite

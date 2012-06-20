@@ -13,6 +13,7 @@ import Internal.OpenGL
 import KeyBind
 import GlobalValue
 import GameStage
+import Sound as SO
 
 data TitleState = GameStart | GameEnd
   deriving (Eq, Enum, Bounded, Show)
@@ -30,15 +31,22 @@ prev x
 data TitleScene = TitleScene
   { state :: TitleState
   , movable :: Bool
+  , time :: Int
   } deriving Eq
 
 instance GameScene TitleScene where
-  update (GV {keyset = key}) title@(TitleScene st movable) = do
+  update (GV {keyset = key, sound = s}) title@TitleScene {time = t} = do
+    if t == 0
+      then SO.writeChan s (SO.Music SO.Title)
+      else return ()
     case member QUIT key of
       True  -> return EndScene
-      False -> pressStart key $ moveCursor key title
+      False -> ( pressStart key s
+               . moveCursor key
+               . (\title@TitleScene {time = t} -> title {time = t+1})
+               ) title
 
-  render (TitleScene st _) = do
+  render (TitleScene { state = st }) = do
     preservingMatrix $ do
       let ImageTexture tex w h = loadTexture "res/title.png"
       textureBinding Texture2D $=! (Just $ tex)
@@ -73,21 +81,23 @@ instance GameScene TitleScene where
     return ()
 
 titleScene :: TitleScene
-titleScene = TitleScene GameStart True
+titleScene = TitleScene GameStart True 0
 
 moveCursor :: Keyset -> TitleScene -> TitleScene
-moveCursor key title@(TitleScene st movable)
-  | member UB key = TitleScene nst False
-  | member DB key = TitleScene pst False
-  | otherwise     = TitleScene st  True
+moveCursor key title@(TitleScene { state = st, movable = m })
+  | member UB key = title { state = nst , movable = False }
+  | member DB key = title { state = pst , movable = False }
+  | otherwise     = title { state = st  , movable = True  }
   where
-    nst = if movable then next st else st
-    pst = if movable then prev st else st
+    nst = if m then next st else st
+    pst = if m then prev st else st
 
-pressStart :: Keyset -> TitleScene -> IO Result
-pressStart key title@(TitleScene st movable)
+pressStart :: Keyset -> SO.SoundChan -> TitleScene -> IO Result
+pressStart key s title@(TitleScene { state = st })
   | member A key = case st of
-      GameStart -> AddScene <$> gameStage
+      GameStart -> do
+        SO.writeChan s SO.StopMusic
+        AddScene <$> gameStage
       GameEnd   -> return EndScene
   | otherwise = return $ GS.Replace title
 

@@ -28,9 +28,8 @@ waitGame = do
   let timeDiff = fromIntegral $ c - l
       timeDiff :: Int
   case w - timeDiff of
-    correctWait | correctWait < 0 -> return ()
+    correctWait | correctWait < 0 -> delay 1
                 | otherwise       -> delay $ fromIntegral correctWait
   n <- getTicks
   writeIORef state $ fs { lastTime = n }
-  let fps = 1000 / fromIntegral (n - l)
   return ()

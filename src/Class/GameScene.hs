@@ -16,5 +16,8 @@ class GameScene a where
   render :: a -> IO ()
   render _ = return ()
 
+  dispose :: a -> IO ()
+  dispose _ = return ()
+
   transparent :: a -> Bool
   transparent _ = False
