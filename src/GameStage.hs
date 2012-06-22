@@ -26,15 +26,16 @@ data GameStage = GameStage
   , playerBullets :: M.Map Unique B.Bullet
   , enemies :: M.Map Unique E.Enemy
   , enemyList :: EM.EnemyList
+  , enemyBullets :: M.Map Unique B.Bullet
   , time :: Integer
-  } deriving Eq
+  }
 
 instance GS.GameScene GameStage where
   update (GV {keyset = key}) scene = do
     case member QUIT key of
       True  -> return GS.EndScene
       False -> GS.Replace <$> do
-        ( update >=> shoot >=> spawnEnemy >=> hitEnemy ) scene
+        ( update >=> shoot >=> spawnEnemy >=> hitEnemy >=> shootEnemy ) scene
     where
       hitEnemy stage@(GameStage { playerBullets = pbs
                                 , enemies = es
@@ -64,11 +65,12 @@ instance GS.GameScene GameStage where
                             , enemyList = newEl
                             }
       update :: GameStage -> IO GameStage
-      update (GameStage p pbs es el time)
+      update (GameStage p pbs es el ebs time)
         = return $ GameStage (P.update key p)
                              (M.mapMaybe B.update pbs)
                              (M.mapMaybe E.update es)
                              el
+                             (M.mapMaybe B.update ebs)
                              (time + 1)
       shoot :: GameStage -> IO GameStage
       shoot stage@(GameStage { player = p
@@ -82,15 +84,29 @@ instance GS.GameScene GameStage where
                                        <*> pure pbs
                          else return pbs
              return $ stage { playerBullets = newPbs }
+      shootEnemy :: GameStage -> IO GameStage
+      shootEnemy stage@GameStage { enemies = es
+                                 , enemyBullets = ebs
+                                 }
+        = do
+             let newB = concatMap E.getBullets (M.elems es)
+             nebs <- mapM (\x -> (,) <$> newUnique <*> pure x) newB
+             return $ stage { enemyBullets = Prelude.foldl
+                                               ((flip . uncurry) M.insert)
+                                               ebs
+                                               nebs
+                            }
 
   render (GameStage { player = p
                     , playerBullets = pbs
                     , enemies = es
+                    , enemyBullets = ebs
                     }) = do
     render $ gameObject p
     mapM_ (render.gameObject) $ M.elems pbs
     mapM_ (render.gameObject) $ M.elems es
+    mapM_ (render.gameObject) $ M.elems ebs
     return ()
 
 gameStage :: IO GameStage
-gameStage = return $ GameStage P.player M.empty M.empty EM.constEnemy 0
+gameStage = return $ GameStage P.player M.empty M.empty EM.constEnemy M.empty 0

@@ -7,13 +7,14 @@ import Graphics.Rendering.OpenGL (GLfloat)
 
 import GlobalSettings
 import GameStage.GameObject
+import qualified GameStage.Bullet as B
 import Internal.Texture
 
 data Enemy = Enemy
   { object :: GameObject
   , life :: Int
-  , move :: [Complex GLfloat]
-  } deriving (Eq)
+  , act :: [(Complex GLfloat, [Pos -> B.Bullet])]
+  }
 
 instance HaveGameObject Enemy where
   gameObject (Enemy {object = x}) = x
@@ -31,10 +32,20 @@ update enemy = case newEnemy of
                             , y < -l
                             , y > realToFrac windowHeight + l
                             ]
-    newEnemy = case move enemy of
+    newEnemy = case act enemy of
       []   -> Nothing
-      m:ms -> Just enemy { object = g {pos = p + m}
-                         , move = ms
-                         }
+      (m,_):ms -> Just enemy { object = g {pos = p + m}
+                             , act = ms
+                             }
 
-enemy pos = Enemy (GameObject pos 8 (16:+16) noTexture 0) 10 (repeat $ (-1):+0)
+getBullets :: Enemy -> [B.Bullet]
+getBullets enemy = bullets
+  where
+    p = pos $ gameObject enemy
+    bullets = map (\f -> f p) $ (snd.head.act) enemy
+
+enemy pos = Enemy (GameObject pos 8 (16:+16) noTexture 0) 10
+  ((repeat $ ((-1):+0)) `zip` bullets 0)
+  where
+    bullets 10 = [B.enemyBullet (0:+2)] : bullets 0
+    bullets x  = [] : bullets (x+1)
