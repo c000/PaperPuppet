@@ -8,7 +8,6 @@ import Graphics.Rendering.OpenGL (GLfloat)
 import Data.Complex
 import GameStage.GameObject
 import KeyBind
-import Internal.Texture (noTexture)
 
 -- Player GameObject MoveSpeed
 data Player = Player
@@ -37,4 +36,4 @@ normalize (x:+y) = case sqrt (x**2 + y**2) of
                      0 -> 0
                      n -> (x/n :+ y/n)
 
-player = Player (GameObject (400:+400) 0 (16:+16) noTexture 0) 4
+player = Player (GameObject (400:+400) 0 (16:+16) Nothing 0) 4

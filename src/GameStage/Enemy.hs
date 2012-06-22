@@ -44,7 +44,7 @@ getBullets enemy = bullets
     p = pos $ gameObject enemy
     bullets = map (\f -> f p) $ (snd.head.act) enemy
 
-enemy pos = Enemy (GameObject pos 8 (16:+16) noTexture 0) 10
+enemy pos = Enemy (GameObject pos 8 (16:+16) Nothing 0) 10
   ((repeat $ ((-1):+0)) `zip` bullets 0)
   where
     bullets 10 = [B.enemyBullet (0:+2)] : bullets 0

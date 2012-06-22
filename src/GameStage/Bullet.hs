@@ -30,5 +30,5 @@ update bullet = case newBullet of
                             ]
     newBullet = bullet { object = obj { pos = p + dp } }
 
-playerBullet pos = Bullet (GameObject pos 5 (8:+8) noTexture 0) (9:+0)
-enemyBullet direction pos = Bullet (GameObject pos 0 (8:+8) noTexture 0) direction
+playerBullet pos = Bullet (GameObject pos 5 (8:+8) Nothing 0) (9:+0)
+enemyBullet direction pos = Bullet (GameObject pos 0 (8:+8) Nothing 0) direction
