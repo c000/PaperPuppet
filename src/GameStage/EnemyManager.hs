@@ -5,7 +5,6 @@ import Data.Complex
 import Data.List
 
 import GameStage.Enemy
-import GameStage.GameObject
 
 type Time = Integer
 type EnemyList = [(Time, Enemy)]

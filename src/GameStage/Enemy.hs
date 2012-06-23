@@ -8,7 +8,6 @@ import Graphics.Rendering.OpenGL (GLfloat)
 import GlobalSettings
 import GameStage.GameObject
 import qualified GameStage.Bullet as B
-import Internal.Texture
 
 data Enemy = Enemy
   { object :: GameObject

@@ -2,7 +2,6 @@ module GameStage.GameObject
   where
 
 import Data.Complex
-import Data.Maybe
 
 import Graphics.Rendering.OpenGL
 

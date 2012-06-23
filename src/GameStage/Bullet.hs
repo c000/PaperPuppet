@@ -5,7 +5,6 @@ import Data.Complex
 
 import GlobalSettings
 import GameStage.GameObject
-import Internal.Texture
 
 data Bullet = Bullet
   { object :: GameObject

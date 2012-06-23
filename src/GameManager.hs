@@ -35,10 +35,11 @@ runGame gv@(GV {keyset = k}) stack@((SceneObject x):xs) = do
     EndScene -> runGameStart (gv {keyset = S.empty}) xs
     RemoveScenes i -> runGameStart (gv {keyset = S.empty}) (drop i xs)
 
+runGameStart :: GlobalValue -> [SceneObject] -> IO ()
 runGameStart gv stack = do
   case stack of
     (SceneObject x):_ -> start gv x
-    otherwise         -> return ()
+    _                 -> return ()
   runGame gv stack
 
 renderGame :: SceneStack -> IO ()

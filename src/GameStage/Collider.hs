@@ -4,7 +4,6 @@ module GameStage.Collider
 import Prelude as P
 import Data.List as L
 import Data.Map as M
-import Data.Unique
 
 import Class.Sprite
 import GameStage.GameObject
