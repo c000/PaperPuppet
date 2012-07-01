@@ -19,7 +19,7 @@ import qualified GameStage.Player as P
 import qualified GameStage.Bullet as B
 import qualified GameStage.Enemy as E
 import qualified GameStage.EnemyManager as EM
-import GameStage.BGManager as BG
+import qualified GameStage.BGManager as BG
 import GameStage.Collider
 
 data GameStage = GameStage
@@ -106,6 +106,7 @@ instance GS.GameScene GameStage where
                     , enemyBullets = ebs
                     , bgStruct = bgs
                     }) = do
+    BG.render bgs
     render $ gameObject p
     mapM_ (render.gameObject) $ M.elems pbs
     mapM_ (render.gameObject) $ M.elems es

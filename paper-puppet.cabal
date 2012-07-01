@@ -53,7 +53,7 @@ Executable paper_puppet
   Ghc-options:         -Wall -O -threaded -with-rtsopts -N -rtsopts
   
   -- Packages needed in order to build this package.
-  Build-depends:       base, containers, SDL, OpenGL, SDL-image, SDL-mixer
+  Build-depends:       base, array, containers, SDL, OpenGL, SDL-image, SDL-mixer
   
   -- Modules not exported by this package.
   -- Other-modules:       
