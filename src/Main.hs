@@ -13,6 +13,6 @@ main' :: Surface -> IO ()
 main' w = do
   putStrLn "GameInitialized"
   gv <- defaultGV w
-  let title = titleScene
+  title <- titleScene
   start gv title
   runGame gv [SceneObject title]

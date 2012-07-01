@@ -5,15 +5,17 @@ module TitleScene
 
 import Control.Applicative
 import Data.Set
+import Data.Complex
 import Graphics.Rendering.OpenGL
 
 import Class.GameScene as GS
+import Class.Sprite as SP
 import Internal.Texture
 import Internal.OpenGL
 import KeyBind
 import GlobalValue
 import GameStage
-import GameStage.GameObject
+import qualified GameStage.GameObject as GO
 import Sound as SO
 
 data TitleState = GameStart | GameEnd
@@ -33,9 +35,13 @@ data TitleScene = TitleScene
   { state :: TitleState
   , movable :: Bool
   , time :: Int
+  , cursor :: GO.GameObject
   } deriving Eq
 
 instance GameScene TitleScene where
+  dispose TitleScene { cursor = c } = do
+    GO.freeGameObject c
+
   start (GV {sound = s}) _ = do
     SO.writeChan s (SO.Music SO.Title)
 
@@ -47,42 +53,38 @@ instance GameScene TitleScene where
                . (\title@TitleScene {time = t} -> title {time = t+1})
                ) title
 
-  render (TitleScene { state = st }) = do
-    preservingMatrix $ do
-      let ImageTexture tex w h = unsafeLoadTexture "res/title.png"
-      textureBinding Texture2D $=! (Just $ tex)
-      blendFunc $=! (One, Zero)
-      renderPrimitive Quads $ do
-        c4 0.5 0.5 0.5 1
-        t2 0 h
-        v2 0 0
-        t2 w h
-        v2 800 0
-        t2 w 0
-        v2 800 600
-        t2 0 0
-        v2 0 600
-    preservingMatrix $ do
-      let ImageTexture tex w h = unsafeLoadTexture "res/player.png"
-      textureBinding Texture2D $= (Just $ tex)
-      blendFunc $=! (SrcAlpha, OneMinusSrcAlpha)
+  render TitleScene { state = st
+                    , cursor = c
+                    }
+    = do
+      preservingMatrix $ do
+        let ImageTexture tex w h = unsafeLoadTexture "res/title.png"
+        textureBinding Texture2D $=! (Just $ tex)
+        blendFunc $=! (One, Zero)
+        renderPrimitive Quads $ do
+          c4 0.5 0.5 0.5 1
+          t2 0 h
+          v2 0 0
+          t2 w h
+          v2 800 0
+          t2 w 0
+          v2 800 600
+          t2 0 0
+          v2 0 600
       case st of
-        GameStart -> translate (Vector3 10 110 0 :: Vector3 GLfloat)
-        GameEnd   -> translate (Vector3 10 10 0 :: Vector3 GLfloat)
-      renderPrimitive Quads $ do
-        c4 1 1 1 1
-        t2 0 h
-        v2 0 0
-        t2 w h
-        v2 100 0
-        t2 w 0
-        v2 100 100
-        t2 0 0
-        v2 0 100
-    return ()
+        GameStart -> SP.render $ c { GO.pos = 100 :+ 200 }
+        GameEnd   -> SP.render $ c { GO.pos = 100 :+ 100 }
 
-titleScene :: TitleScene
-titleScene = TitleScene GameStart True 0
+titleScene :: IO TitleScene
+titleScene = do
+  c <- loadCursor
+  return $ TitleScene GameStart True 0 c
+  where
+    loadCursor = do
+      t <- loadTexture "res/cursor.png"
+      return $ GO.defaultGameObject { GO.size = 100 :+ 100
+                                    , GO.gameTexture = Just $ TA t (1,1) [(0,0)]
+                                    }
 
 moveCursor :: Keyset -> TitleScene -> TitleScene
 moveCursor key title@(TitleScene { state = st, movable = m })

@@ -70,11 +70,11 @@ instance S.Sprite GameObject where
           renderPrimitive Quads $ do
             c4 1 1 1 1
             t2 tw0 (th0 + th)
-            v2 (hsx) (hsy)
+            v2 (-hsx) (-hsy)
             t2 tw0 th0
             v2 (-hsx) (hsy)
             t2 (tw0 + tw) th0
-            v2 (-hsx) (-hsy)
+            v2 (hsx) (hsy)
             t2 (tw0 + tw) (th0 + th)
             v2 (hsx) (-hsy)
 
