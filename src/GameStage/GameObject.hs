@@ -8,6 +8,7 @@ import Graphics.Rendering.OpenGL
 import qualified Class.Sprite as S
 import Internal.OpenGL
 import Internal.Texture
+import GlobalSettings
 
 type Pos = Complex GLfloat
 
@@ -18,6 +19,19 @@ data GameObject = GameObject
   , gameTexture :: Maybe TextureAnimation
   , frame :: Int
   } deriving (Eq)
+
+defaultGameObject
+  = GameObject (fromIntegral windowWidth / 2
+             :+ fromIntegral windowHeight / 2)
+               0
+               (0 :+ 0)
+               Nothing
+               0
+
+freeGameObject GameObject { gameTexture = ta }
+  = case ta of
+      Nothing -> return ()
+      Just (TA t _ _) -> freeTexture [t]
 
 class HaveGameObject a where
   gameObject :: a -> GameObject
@@ -33,6 +47,7 @@ instance S.Sprite GameObject where
     case tex of
       Nothing -> do
         blendFunc $=! (One, Zero)
+        textureBinding Texture2D $=! Nothing
         preservingMatrix $ do
           translate $ Vector3 x y 0
           renderPrimitive Quads $ do
@@ -62,7 +77,6 @@ instance S.Sprite GameObject where
             v2 (-hsx) (-hsy)
             t2 (tw0 + tw) (th0 + th)
             v2 (hsx) (-hsy)
-
 
   center (GameObject {pos = x :+ y})  = Position (round x) (round y)
 

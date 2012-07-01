@@ -13,6 +13,7 @@ import Internal.OpenGL
 import KeyBind
 import GlobalValue
 import GameStage
+import GameStage.GameObject
 import Sound as SO
 
 data TitleState = GameStart | GameEnd
@@ -48,7 +49,7 @@ instance GameScene TitleScene where
 
   render (TitleScene { state = st }) = do
     preservingMatrix $ do
-      let ImageTexture tex w h = loadTexture "res/title.png"
+      let ImageTexture tex w h = unsafeLoadTexture "res/title.png"
       textureBinding Texture2D $=! (Just $ tex)
       blendFunc $=! (One, Zero)
       renderPrimitive Quads $ do
@@ -62,7 +63,7 @@ instance GameScene TitleScene where
         t2 0 0
         v2 0 600
     preservingMatrix $ do
-      let ImageTexture tex w h = loadTexture "res/player.png"
+      let ImageTexture tex w h = unsafeLoadTexture "res/player.png"
       textureBinding Texture2D $= (Just $ tex)
       blendFunc $=! (SrcAlpha, OneMinusSrcAlpha)
       case st of

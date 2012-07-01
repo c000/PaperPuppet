@@ -1,7 +1,9 @@
 module Internal.Texture
   ( ImageTexture (..)
   , TextureAnimation (..)
+  , unsafeLoadTexture
   , loadTexture
+  , freeTexture
   ) where
 
 import Graphics.UI.SDL as SDL
@@ -18,9 +20,13 @@ data TextureAnimation = TA
   , frames :: [(Int, Int)]
   } deriving (Eq)
 
-loadTexture :: FilePath -> ImageTexture
-loadTexture fileName = unsafePerformIO $ do
+unsafeLoadTexture :: FilePath -> ImageTexture
+unsafeLoadTexture fileName = unsafePerformIO $ do
   putStrLn "WARNING: Unsafe texture loading."
+  loadTexture fileName
+
+loadTexture :: FilePath -> IO ImageTexture
+loadTexture fileName = do
   -- load to SDL Surface
   srcSurface <- load fileName
   let w = surfaceGetWidth srcSurface
@@ -40,6 +46,10 @@ loadTexture fileName = unsafePerformIO $ do
   textureFilter Texture2D $=! ((Linear', Nothing), Linear')
   texImage2D Nothing NoProxy 0 RGBA' (TextureSize2D sizeGL sizeGL) 0 pixelData
   return $ ImageTexture tex (w `fdiv` size) (h `fdiv` size)
+
+freeTexture texs = do
+  let [objs] = map (\(ImageTexture x _ _) -> x) texs
+  deleteObjectNames [objs]
 
 fdiv x y = (realToFrac x) / (realToFrac y)
 

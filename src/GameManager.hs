@@ -32,8 +32,11 @@ runGame gv@(GV {keyset = k}) stack@((SceneObject x):xs) = do
   case newScene of
     Replace g -> runGame newGV ((SceneObject g):xs)
     AddScene g -> runGameStart (gv {keyset = S.empty}) ((SceneObject g):(SceneObject x):xs)
-    EndScene -> runGameStart (gv {keyset = S.empty}) xs
-    RemoveScenes i -> runGameStart (gv {keyset = S.empty}) (drop i xs)
+    EndScene -> dispose x >> runGameStart (gv {keyset = S.empty}) xs
+    RemoveScenes i -> do
+      let (ds, xs) = splitAt i xs
+      mapM_ (\(SceneObject s) -> dispose s) ds
+      runGameStart (gv {keyset = S.empty}) (drop i xs)
 
 runGameStart :: GlobalValue -> [SceneObject] -> IO ()
 runGameStart gv stack = do

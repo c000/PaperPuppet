@@ -19,6 +19,7 @@ import qualified GameStage.Player as P
 import qualified GameStage.Bullet as B
 import qualified GameStage.Enemy as E
 import qualified GameStage.EnemyManager as EM
+import GameStage.BGManager as BG
 import GameStage.Collider
 
 data GameStage = GameStage
@@ -27,6 +28,7 @@ data GameStage = GameStage
   , enemies :: M.Map Unique E.Enemy
   , enemyList :: EM.EnemyList
   , enemyBullets :: M.Map Unique B.Bullet
+  , bgStruct :: BG.BGStruct
   , time :: Integer
   }
 
@@ -65,12 +67,13 @@ instance GS.GameScene GameStage where
                             , enemyList = newEl
                             }
       update :: GameStage -> IO GameStage
-      update (GameStage p pbs es el ebs time)
+      update (GameStage p pbs es el ebs bgs time)
         = return $ GameStage (P.update key p)
                              (M.mapMaybe B.update pbs)
                              (M.mapMaybe E.update es)
                              el
                              (M.mapMaybe B.update ebs)
+                             (BG.update bgs)
                              (time + 1)
       shoot :: GameStage -> IO GameStage
       shoot stage@(GameStage { player = p
@@ -101,12 +104,20 @@ instance GS.GameScene GameStage where
                     , playerBullets = pbs
                     , enemies = es
                     , enemyBullets = ebs
+                    , bgStruct = bgs
                     }) = do
     render $ gameObject p
     mapM_ (render.gameObject) $ M.elems pbs
     mapM_ (render.gameObject) $ M.elems es
     mapM_ (render.gameObject) $ M.elems ebs
+    BG.renderRim bgs
     return ()
 
+  dispose GameStage { bgStruct = bgs
+                    }
+    = do BG.dispose bgs
+
 gameStage :: IO GameStage
-gameStage = return $ GameStage P.player M.empty M.empty EM.constEnemy M.empty 0
+gameStage = do
+  bgs <- BG.load
+  return $ GameStage P.player M.empty M.empty EM.constEnemy M.empty bgs 0
