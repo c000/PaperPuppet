@@ -17,6 +17,7 @@ data GameObject = GameObject
   , radius :: Int
   , size :: Complex GLfloat
   , gameTexture :: Maybe TextureAnimation
+  , offset :: Complex GLfloat
   , frame :: Int
   } deriving (Eq)
 
@@ -26,6 +27,7 @@ defaultGameObject
                0
                (0 :+ 0)
                Nothing
+               (0 :+ 0)
                0
 
 freeGameObject GameObject { gameTexture = ta }
@@ -40,6 +42,7 @@ instance S.Sprite GameObject where
   render (GameObject { pos = x :+ y
                      , size = sx :+ sy
                      , gameTexture = tex
+                     , offset = ox :+ oy
                      , frame = f
                      }) = do
     let hsx = sx / 2
@@ -51,7 +54,7 @@ instance S.Sprite GameObject where
         preservingMatrix $ do
           translate $ Vector3 x y 0
           renderPrimitive Quads $ do
-            c4 1 1 1 1
+            c4 1 0 1 1
             v2 (hsx) (hsy)
             v2 (-hsx) (hsy)
             v2 (-hsx) (-hsy)
@@ -66,7 +69,7 @@ instance S.Sprite GameObject where
         textureBinding Texture2D $=! (Just t)
         blendFunc $=! (SrcAlpha, OneMinusSrcAlpha)
         preservingMatrix $ do
-          translate $ Vector3 x y 0
+          translate $ Vector3 (x+ox) (y+oy) 0
           renderPrimitive Quads $ do
             c4 1 1 1 1
             t2 tw0 (th0 + th)

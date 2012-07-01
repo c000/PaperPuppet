@@ -119,6 +119,11 @@ instance GS.GameScene GameStage where
     = do BG.dispose bgs
 
 gameStage :: IO GameStage
-gameStage = do
-  bgs <- BG.load
-  return $ GameStage P.player M.empty M.empty EM.constEnemy M.empty bgs 0
+gameStage = GameStage
+    <$> P.player
+    <*> pure M.empty
+    <*> pure M.empty
+    <*> pure EM.constEnemy
+    <*> pure M.empty
+    <*> BG.load
+    <*> pure 0

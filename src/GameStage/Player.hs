@@ -8,6 +8,7 @@ import Graphics.Rendering.OpenGL (GLfloat)
 import Data.Complex
 import GameStage.GameObject
 import KeyBind
+import Internal.Texture
 
 -- Player GameObject MoveSpeed
 data Player = Player
@@ -25,15 +26,24 @@ update key player@( Player obj@(GameObject { pos = pos })
     where
       dpos = moveSpeed * (normalize . keysetToXY) key
       crop (x:+y) = (cx x :+ cy y)
-      cx x | x < 20    = 20
-           | x > 780   = 780
+      cx x | x < 100   = 100
+           | x > 700   = 700
            | otherwise = x
-      cy y | y < 20    = 20
-           | y > 580   = 580
+      cy y | y < 100   = 100
+           | y > 500   = 500
            | otherwise = y
 
 normalize (x:+y) = case sqrt (x**2 + y**2) of
                      0 -> 0
                      n -> (x/n :+ y/n)
 
-player = Player (GameObject (400:+400) 0 (16:+16) Nothing 0) 4
+player = do
+  t <- loadTexture "res/player.png"
+  let ta = TA t (1,1) [(0,0)]
+  return $ Player (defaultGameObject
+                     { pos = 400 :+ 400
+                     , radius = 0
+                     , size = 70 :+ 600
+                     , gameTexture = Just ta
+                     , offset = 0 :+ (-255)
+                     }) 4
