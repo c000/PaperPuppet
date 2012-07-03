@@ -38,48 +38,50 @@ freeGameObject GameObject { gameTexture = ta }
 class HaveGameObject a where
   gameObject :: a -> GameObject
 
+renderFine bf c (GameObject { pos = x :+ y
+                            , size = sx :+ sy
+                            , gameTexture = tex
+                            , offset = ox :+ oy
+                            , frame = f
+                            }) = do
+  let hsx = sx / 2
+      hsy = sy / 2
+  case tex of
+    Nothing -> do
+      blendFunc $=! bf
+      textureBinding Texture2D $=! Nothing
+      preservingMatrix $ do
+        translate $ Vector3 x y 0
+        renderPrimitive Quads $ do
+          color (c4 1 0 1 1)
+          v2 (hsx) (hsy)
+          v2 (-hsx) (hsy)
+          v2 (-hsx) (-hsy)
+          v2 (hsx) (-hsy)
+    Just (TA texture (divx, divy) fs) -> do
+      let ImageTexture t w h = texture
+          (fx, fy) = fs !! (f `mod` length fs)
+          tw = w / fromIntegral divx
+          th = h / fromIntegral divy
+          tw0 = tw * fromIntegral fx
+          th0 = th * fromIntegral fy
+      textureBinding Texture2D $=! (Just t)
+      blendFunc $=! bf
+      preservingMatrix $ do
+        translate $ Vector3 (x+ox) (y+oy) 0
+        renderPrimitive Quads $ do
+          color c
+          t2 tw0 (th0 + th)
+          v2 (-hsx) (-hsy)
+          t2 tw0 th0
+          v2 (-hsx) (hsy)
+          t2 (tw0 + tw) th0
+          v2 (hsx) (hsy)
+          t2 (tw0 + tw) (th0 + th)
+          v2 (hsx) (-hsy)
+
 instance S.Sprite GameObject where
-  render (GameObject { pos = x :+ y
-                     , size = sx :+ sy
-                     , gameTexture = tex
-                     , offset = ox :+ oy
-                     , frame = f
-                     }) = do
-    let hsx = sx / 2
-        hsy = sy / 2
-    case tex of
-      Nothing -> do
-        blendFunc $=! (One, Zero)
-        textureBinding Texture2D $=! Nothing
-        preservingMatrix $ do
-          translate $ Vector3 x y 0
-          renderPrimitive Quads $ do
-            c4 1 0 1 1
-            v2 (hsx) (hsy)
-            v2 (-hsx) (hsy)
-            v2 (-hsx) (-hsy)
-            v2 (hsx) (-hsy)
-      Just (TA texture (divx, divy) fs) -> do
-        let ImageTexture t w h = texture
-            (fx, fy) = fs !! (f `mod` length fs)
-            tw = w / fromIntegral divx
-            th = h / fromIntegral divy
-            tw0 = tw * fromIntegral fx
-            th0 = th * fromIntegral fy
-        textureBinding Texture2D $=! (Just t)
-        blendFunc $=! (SrcAlpha, OneMinusSrcAlpha)
-        preservingMatrix $ do
-          translate $ Vector3 (x+ox) (y+oy) 0
-          renderPrimitive Quads $ do
-            c4 1 1 1 1
-            t2 tw0 (th0 + th)
-            v2 (-hsx) (-hsy)
-            t2 tw0 th0
-            v2 (-hsx) (hsy)
-            t2 (tw0 + tw) th0
-            v2 (hsx) (hsy)
-            t2 (tw0 + tw) (th0 + th)
-            v2 (hsx) (-hsy)
+  render = renderFine (SrcAlpha, OneMinusSrcAlpha) (c4 1 1 1 1)
 
   center (GameObject {pos = x :+ y})  = Position (round x) (round y)
 

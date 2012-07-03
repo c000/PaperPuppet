@@ -25,7 +25,7 @@ data Command = Quit | StopMusic | Music MusicName
 type SoundChan = Chan Command
 
 loadMD :: IO MusicData
-loadMD = MD <$> loadMUS "res/title.mp3"
+loadMD = MD <$> loadMUS "res/title.ogg"
 
 freeMD :: MusicData -> IO ()
 freeMD (MD t) = do

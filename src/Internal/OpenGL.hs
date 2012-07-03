@@ -12,5 +12,5 @@ t2 x y = texCoord (TexCoord2 x y)
 c3 :: GLfloat -> GLfloat -> GLfloat -> IO ()
 c3 r g b = color $ Color3 r g b
 
-c4 :: GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
-c4 r g b a = color $ Color4 r g b a
+c4 :: GLfloat -> GLfloat -> GLfloat -> GLfloat -> Color4 GLfloat
+c4 r g b a = Color4 r g b a
