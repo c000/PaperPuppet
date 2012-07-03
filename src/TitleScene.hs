@@ -55,7 +55,7 @@ instance GameScene TitleScene where
     GO.freeGameObject sb
     GO.freeGameObject eb
 
-  start (GV {sound = s}) title = do
+  start (GV {sound = s}) _ = do
     SO.writeChan s (SO.Music SO.Title)
 
   update (GV {keyset = key, sound = s}) title = do

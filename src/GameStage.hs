@@ -81,10 +81,13 @@ instance GS.GameScene GameStage where
                              , playerBullets = pbs
                              })
         = do let ppos = (pos.gameObject) p
-             newPbs <- if member A key
-                         then B.spawnPB B.Normal ppos pbs
-                         else return pbs
-             return $ stage { playerBullets = newPbs }
+                 (bt,newP) = P.shoot (member A key) p
+             newPbs <- case bt of
+               Nothing -> return pbs
+               Just t  -> B.spawnPB t ppos pbs
+             return $ stage { player = newP
+                            , playerBullets = newPbs
+                            }
       shootEnemy :: GameStage -> IO GameStage
       shootEnemy stage@GameStage { enemies = es
                                  , enemyBullets = ebs

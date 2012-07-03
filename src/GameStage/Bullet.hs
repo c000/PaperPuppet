@@ -64,7 +64,7 @@ spawnPB :: BulletType -> Pos -> PlayerBullets -> IO PlayerBullets
 spawnPB bType pos pbs@(PB c obj)
   = case bType of
       Normal -> do
-        let newB = Bullet (obj { pos = pos }) (9:+0)
+        let newB = Bullet (obj { pos = pos + (30:+0) }) (10:+0)
         newC <- M.insert <$> newUnique
                          <*> pure newB
                          <*> pure c

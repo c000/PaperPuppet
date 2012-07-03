@@ -2,6 +2,7 @@ module GameStage.Player
   ( Player (..)
   , player
   , update
+  , shoot
   ) where
 
 import Graphics.Rendering.OpenGL (GLfloat)
@@ -41,12 +42,14 @@ normalize (x:+y) = case sqrt (x**2 + y**2) of
                      n -> (x/n :+ y/n)
 
 shoot :: Bool -> Player -> (Maybe B.BulletType, Player)
-shoot trig p@Player { object = o
-                    , shootSpan = span
+shoot trig p@Player { shootSpan = span
                     }
   = (newB, newP)
   where
-    newB = Just B.Normal
+    newB = case trig of
+             False -> Nothing
+             True | span `mod` 4 == 0 -> Just B.Normal
+                  | otherwise         -> Nothing
     newP = p { shootSpan = if trig then span+1 else 0 }
 
 player = do
