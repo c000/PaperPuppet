@@ -24,7 +24,7 @@ import GameStage.Collider
 
 data GameStage = GameStage
   { player :: P.Player
-  , playerBullets :: M.Map Unique B.Bullet
+  , playerBullets :: B.PlayerBullets
   , enemies :: M.Map Unique E.Enemy
   , enemyList :: EM.EnemyList
   , enemyBullets :: M.Map Unique B.Bullet
@@ -42,13 +42,14 @@ instance GS.GameScene GameStage where
       hitEnemy stage@(GameStage { playerBullets = pbs
                                 , enemies = es
                                 })
-        = do let list = collide pbs es
+        = do let list = collide (B.container pbs) es
                  kpbs = Prelude.map fst list
                  kes  = Prelude.map snd list
-             return stage { playerBullets = Prelude.foldl
-                                              (flip M.delete)
-                                              pbs
-                                              kpbs
+             return stage { playerBullets = pbs { B.container = Prelude.foldl
+                                                     (flip M.delete)
+                                                     (B.container pbs)
+                                                     kpbs
+                                                }
                           , enemies = Prelude.foldl
                                         (flip M.delete)
                                         es
@@ -69,7 +70,7 @@ instance GS.GameScene GameStage where
       update :: GameStage -> IO GameStage
       update (GameStage p pbs es el ebs bgs time)
         = return $ GameStage (P.update key p)
-                             (M.mapMaybe B.update pbs)
+                             (B.updatePB pbs)
                              (M.mapMaybe E.update es)
                              el
                              (M.mapMaybe B.update ebs)
@@ -80,11 +81,8 @@ instance GS.GameScene GameStage where
                              , playerBullets = pbs
                              })
         = do let ppos = (pos.gameObject) p
-                 newB = B.playerBullet ppos
              newPbs <- if member A key
-                         then M.insert <$> newUnique
-                                       <*> pure newB
-                                       <*> pure pbs
+                         then B.spawnPB B.Normal ppos pbs
                          else return pbs
              return $ stage { playerBullets = newPbs }
       shootEnemy :: GameStage -> IO GameStage
@@ -108,7 +106,7 @@ instance GS.GameScene GameStage where
                     }) = do
     BG.render bgs
     render $ gameObject p
-    mapM_ (render.gameObject) $ M.elems pbs
+    render pbs
     mapM_ (render.gameObject) $ M.elems es
     mapM_ (render.gameObject) $ M.elems ebs
     BG.renderRim bgs
@@ -121,7 +119,7 @@ instance GS.GameScene GameStage where
 gameStage :: IO GameStage
 gameStage = GameStage
     <$> P.player
-    <*> pure M.empty
+    <*> B.playerBullets
     <*> pure M.empty
     <*> pure EM.constEnemy
     <*> pure M.empty

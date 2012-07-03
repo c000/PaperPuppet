@@ -9,11 +9,13 @@ import Data.Complex
 import GameStage.GameObject
 import KeyBind
 import Internal.Texture
+import qualified GameStage.Bullet as B
 
 -- Player GameObject MoveSpeed
 data Player = Player
   { object :: GameObject
   , moveSpeed :: Complex GLfloat
+  , shootSpan :: Int
   } deriving (Eq)
 
 instance HaveGameObject Player where
@@ -21,7 +23,8 @@ instance HaveGameObject Player where
 
 update :: Keyset -> Player -> Player
 update key player@( Player obj@(GameObject { pos = pos })
-                           moveSpeed ) =
+                           moveSpeed
+                           _ ) =
   player {object = obj {pos = crop $ pos + dpos}}
     where
       dpos = moveSpeed * (normalize . keysetToXY) key
@@ -37,6 +40,15 @@ normalize (x:+y) = case sqrt (x**2 + y**2) of
                      0 -> 0
                      n -> (x/n :+ y/n)
 
+shoot :: Bool -> Player -> (Maybe B.BulletType, Player)
+shoot trig p@Player { object = o
+                    , shootSpan = span
+                    }
+  = (newB, newP)
+  where
+    newB = Just B.Normal
+    newP = p { shootSpan = if trig then span+1 else 0 }
+
 player = do
   t <- loadTexture "res/player.png"
   let ta = TA t (1,1) [(0,0)]
@@ -46,4 +58,4 @@ player = do
                      , size = 70 :+ 600
                      , gameTexture = Just ta
                      , offset = 0 :+ (-255)
-                     }) 4
+                     }) 4 0

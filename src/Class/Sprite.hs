@@ -3,9 +3,10 @@ module Class.Sprite
 
 import Graphics.Rendering.OpenGL
 
-class Sprite a where
+class Renderable a where
   render :: a -> IO ()
 
+class Renderable a => Sprite a where
   center :: a -> Position
 
   radius :: a -> Int

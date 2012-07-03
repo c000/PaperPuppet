@@ -80,9 +80,10 @@ renderFine bf c (GameObject { pos = x :+ y
           t2 (tw0 + tw) (th0 + th)
           v2 (hsx) (-hsy)
 
-instance S.Sprite GameObject where
+instance S.Renderable GameObject where
   render = renderFine (SrcAlpha, OneMinusSrcAlpha) (c4 1 1 1 1)
 
+instance S.Sprite GameObject where
   center (GameObject {pos = x :+ y})  = Position (round x) (round y)
 
   radius a = radius a
