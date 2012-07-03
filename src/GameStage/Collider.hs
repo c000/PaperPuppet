@@ -13,6 +13,6 @@ collide xs ys
       Nothing -> []
       Just ((kx, x), nextxs) ->
         let objys = toList ys
-        in case find (\(ky, y) -> gameObject x `within` gameObject y) objys of
+        in case find (\(_, y) -> gameObject x `within` gameObject y) objys of
              Nothing -> collide nextxs ys
              Just (ky, _) -> (kx, ky) : collide nextxs (M.delete ky ys)

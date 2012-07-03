@@ -37,8 +37,17 @@ instance GS.GameScene GameStage where
     case member QUIT key of
       True  -> return GS.EndScene
       False -> GS.Replace <$> do
-        ( update >=> shoot >=> spawnEnemy >=> hitEnemy >=> shootEnemy ) scene
+        ( update >=> shoot >=> spawnEnemy >=> hitEnemy >=> hitPlayer >=> shootEnemy ) scene
     where
+      hitPlayer stage@GameStage { player = p
+                                , enemies = es
+                                , enemyBullets = ebs
+                                }
+        = do let ds = (Prelude.map gameObject . M.elems) es ++
+                      (Prelude.map gameObject . M.elems) ebs
+                 hits = or $ Prelude.map (within (gameObject p)) ds
+             return $ stage { player = P.hit hits p
+                            }
       hitEnemy stage@(GameStage { playerBullets = pbs
                                 , enemies = es
                                 })
@@ -108,7 +117,7 @@ instance GS.GameScene GameStage where
                     , bgStruct = bgs
                     }) = do
     BG.render bgs
-    render $ gameObject p
+    P.render p
     render pbs
     mapM_ (render.gameObject) $ M.elems es
     mapM_ (render.gameObject) $ M.elems ebs

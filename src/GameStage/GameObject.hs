@@ -1,6 +1,7 @@
 module GameStage.GameObject
   where
 
+import Control.Monad (when)
 import Data.Complex
 
 import Graphics.Rendering.OpenGL
@@ -43,6 +44,7 @@ renderFine bf c (GameObject { pos = x :+ y
                             , gameTexture = tex
                             , offset = ox :+ oy
                             , frame = f
+                            , radius = r
                             }) = do
   let hsx = sx / 2
       hsy = sy / 2
@@ -79,6 +81,15 @@ renderFine bf c (GameObject { pos = x :+ y
           v2 (hsx) (hsy)
           t2 (tw0 + tw) (th0 + th)
           v2 (hsx) (-hsy)
+  when debug $ preservingMatrix $ do
+    translate $ Vector3 x y 0
+    textureBinding Texture2D $= Nothing
+    let r1 = realToFrac r
+    renderPrimitive TriangleFan $ do
+      color $ c4 0 1 0 0.9
+      let args = [x / 7 * 2 * pi | x <- [0..7]]
+      v2 0 0
+      mapM_ (uncurry v2) $ map (\rad -> (r1 * cos rad, r1 * sin rad)) args
 
 instance S.Renderable GameObject where
   render = renderFine (SrcAlpha, OneMinusSrcAlpha) (c4 1 1 1 1)
