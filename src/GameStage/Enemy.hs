@@ -49,5 +49,5 @@ enemy pos = Enemy (defaultGameObject { pos = pos
                                      }) 10
   ((repeat $ ((-1):+0)) `zip` bullets 0)
   where
-    bullets 10 = [B.enemyBullet (0:+2)] : bullets 0
+    bullets 10 = [B.constBullet (0:+2)] : bullets 0
     bullets x  = [] : bullets (x+1)

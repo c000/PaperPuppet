@@ -7,12 +7,16 @@ import Control.Applicative
 import Control.Monad
 import Data.Set
 import qualified Data.Map as M
+import qualified Data.List as L
 import Data.Unique
 
 import qualified Class.GameScene as GS
 import Class.Sprite
 import KeyBind
 import GlobalValue
+
+import MissScene (missScene)
+import ClearScene (clearScene)
 
 import GameStage.GameObject
 import qualified GameStage.Player as P
@@ -32,13 +36,27 @@ data GameStage = GameStage
   , time :: Integer
   }
 
+data GameOver = Continue | Miss | Clear
+
 instance GS.GameScene GameStage where
   update (GV {keyset = key}) scene = do
     case member QUIT key of
       True  -> return GS.EndScene
-      False -> GS.Replace <$> do
-        ( update >=> shoot >=> spawnEnemy >=> hitEnemy >=> hitPlayer >=> shootEnemy ) scene
+      False -> do
+        newScene <- ( update >=> shoot >=> spawnEnemy >=> hitEnemy >=> hitPlayer >=> shootEnemy ) scene
+        case gameOver newScene of
+          Continue -> return $ GS.Replace newScene
+          Miss     -> GS.dispose newScene >> GS.Replace <$> missScene
+          Clear    -> GS.dispose newScene >> GS.Replace <$> clearScene 0
     where
+      gameOver :: GameStage -> GameOver
+      gameOver GameStage { player = p
+                         , enemies = es
+                         , enemyList = el
+                         }
+        | P.gameOver p = Miss
+        | L.null el && M.null es = Clear
+        | otherwise    = Continue
       hitPlayer stage@GameStage { player = p
                                 , enemies = es
                                 , enemyBullets = ebs
@@ -133,7 +151,7 @@ gameStage = GameStage
     <$> P.player
     <*> B.playerBullets
     <*> pure M.empty
-    <*> pure EM.constEnemy
+    <*> pure EM.enemies
     <*> pure M.empty
     <*> BG.load
     <*> pure 0

@@ -4,6 +4,7 @@ module GameStage.Player
   , update
   , render
   , hit
+  , gameOver
   , shoot
   ) where
 
@@ -74,6 +75,10 @@ hit True p@Player { remaining = r }
                   }
       _ -> p
 hit _ p = p
+
+gameOver :: Player -> Bool
+gameOver Player { remaining = r }
+  = r == 0
 
 render :: Player -> IO ()
 render p = do

@@ -73,8 +73,8 @@ spawnPB bType pos pbs@(PB c obj)
 updatePB :: PlayerBullets -> PlayerBullets
 updatePB pb@(PB c _) = pb { container = M.mapMaybe update c }
 
-enemyBullet direction pos = Bullet (defaultGameObject
+constBullet direction pos = Bullet (defaultGameObject
                                       { pos = pos
                                       , radius = 1
-                                      ,size = 8:+8
+                                      , size = 8:+8
                                       }) direction
