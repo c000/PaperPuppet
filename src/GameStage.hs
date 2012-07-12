@@ -15,6 +15,8 @@ import Class.Sprite
 import KeyBind
 import GlobalValue
 
+import qualified Sound as SO
+
 import MissScene (missScene)
 import ClearScene (clearScene)
 
@@ -39,7 +41,7 @@ data GameStage = GameStage
 data GameOver = Continue | Miss | Clear
 
 instance GS.GameScene GameStage where
-  update (GV {keyset = key}) scene = do
+  update gv@(GV {keyset = key}) scene = do
     case member QUIT key of
       True  -> return GS.EndScene
       False -> do
@@ -111,7 +113,9 @@ instance GS.GameScene GameStage where
                  (bt,newP) = P.shoot (member A key) p
              newPbs <- case bt of
                Nothing -> return pbs
-               Just t  -> B.spawnPB t ppos pbs
+               Just t  -> do
+                 SO.writeChan (sound gv) (SO.Shoot)
+                 B.spawnPB t ppos pbs
              return $ stage { player = newP
                             , playerBullets = newPbs
                             }

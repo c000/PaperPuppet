@@ -4,6 +4,7 @@ module TitleScene
   ) where
 
 import Control.Applicative
+import Control.Monad
 import Data.Set
 import Data.Complex
 import Graphics.Rendering.OpenGL
@@ -58,12 +59,11 @@ instance GameScene TitleScene where
   start (GV {sound = s}) _ = do
     SO.writeChan s (SO.Music SO.Title)
 
-  update (GV {keyset = key, sound = s}) title = do
+  update gv@GV{keyset = key} title = do
     case member QUIT key of
       True  -> return EndScene
-      False -> ( pressStart key s
-               . moveCursor
-               . moveState key
+      False -> (pressStart gv <=< moveState gv) $
+               ( moveCursor
                . (\title@TitleScene {time = t} -> title {time = t+1})
                ) title
     where
@@ -128,17 +128,28 @@ titleScene = do
                                     , GO.offset = 0 :+ (-255)
                                     }
 
-moveState :: Keyset -> TitleScene -> TitleScene
-moveState key title@(TitleScene { state = st, movable = m })
-  | member RB key = title { state = nst , movable = False }
-  | member LB key = title { state = pst , movable = False }
-  | otherwise     = title { state = st  , movable = True  }
+moveState :: GlobalValue -> TitleScene -> IO TitleScene
+moveState GV { keyset = key
+             , sound = s
+             }
+          title@TitleScene { state = st
+                           , movable = m
+                           }
+  | member RB key = do playSelect 
+                       return $ title { state = nst , movable = False }
+  | member LB key = do playSelect
+                       return $ title { state = pst , movable = False }
+  | otherwise     = return $ title { state = st  , movable = True  }
   where
     nst = if m then next st else st
     pst = if m then prev st else st
+    playSelect = SO.writeChan s SO.Select
 
-pressStart :: Keyset -> SO.SoundChan -> TitleScene -> IO Result
-pressStart key s title@(TitleScene { state = st })
+pressStart :: GlobalValue -> TitleScene -> IO Result
+pressStart GV { keyset = key
+              , sound = s
+              }
+           title@TitleScene { state = st }
   | member A key = case st of
       GameStart -> do
         SO.writeChan s SO.StopMusic

@@ -4,9 +4,7 @@ module GameStage.EnemyManager
   , enemies
   ) where
 
-import Control.Applicative
 import Data.Complex
-import Data.List
 
 import GlobalSettings
 import GameStage.Enemy
@@ -22,18 +20,19 @@ spawnEnemy t el = (enemies, newEl)
     enemies = map snd spawnEl
 
 enemies :: EnemyList
-enemies = sortEnemyList $ s1 <|> mirror s1
+enemies = s1 <*> mirror s1
   where
     s1 = do
-      t <- [0,10..100]
+      t <- [0,10..]
       return $ (,) t $ (enemy (800:+200)) {
          act = [((-3):+y, []) | y <- [0,0.01..]]
       }
-
-sortEnemyList :: EnemyList -> EnemyList
-sortEnemyList = sortBy f
-  where
-    f (a,_) (b,_) = compare a b
+    [] <*> es = es
+    es <*> [] = es
+    (e1:es1) <*> (e2:es2)
+      = if fst e1 < fst e2
+          then e1 : ( es1 <*> (e2:es2) )
+          else e2 : ( (e1:es1) <*> es2 )
 
 delay :: Time -> EnemyList -> EnemyList
 delay time = map f
