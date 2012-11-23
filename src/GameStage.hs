@@ -20,6 +20,7 @@ import qualified Sound as SO
 import MissScene (missScene)
 import ClearScene (clearScene)
 
+import GameStage.Types
 import GameStage.GameObject
 import qualified GameStage.Player as P
 import qualified GameStage.Bullet as B
@@ -27,16 +28,6 @@ import qualified GameStage.Enemy as E
 import qualified GameStage.EnemyManager as EM
 import qualified GameStage.BGManager as BG
 import GameStage.Collider
-
-data GameStage = GameStage
-  { player :: P.Player
-  , playerBullets :: B.PlayerBullets
-  , enemies :: M.Map Unique E.Enemy
-  , enemyList :: EM.EnemyList
-  , enemyBullets :: M.Map Unique B.Bullet
-  , bgStruct :: BG.BGStruct
-  , time :: Integer
-  }
 
 data GameOver = Continue | Miss | Clear
 
